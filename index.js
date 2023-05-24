@@ -3,11 +3,6 @@ const express = require("express");
 
 const app = express();
 
-// const txt = async () => await readFile("./hello.txt", "utf8");
-
-// Promise.resolve(txt()).then((result) => {
-//   console.log(result);
-// });
 
 app.get("/", async (request, response) => {
   try {
