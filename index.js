@@ -93,6 +93,6 @@ app.post('/users', (req, res) => {
 });
 
 
-app.listen(process.env.PORT || 3000, () =>
-  console.log('App running on http://localhost:3000')
+app.listen(process.env.PORT || 3001, () =>
+  console.log('App running on http://localhost:3001')
 );
