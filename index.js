@@ -7,12 +7,17 @@ const app = express();
 
 const password = process.env.DB_PASSWORD;
 
+app.use(bodyParser.json()); // to support JSON-encoded bodies
+app.use(bodyParser.urlencoded({ // to support URL-encoded bodies
+  extended: true
+}));
+
 
 const pool = mysql.createPool({
-  host: '34.70.242.8', // MySQL instance IP address
-  user: 'root', // MySQL username
-  password: `${password}`, // MySQL password
-  database: 'data', // Name of your MySQL database
+  host: '34.70.242.8',
+  user: 'root',
+  password: `${password}`,
+  database: 'data',
 });
 
 app.get('/data', (req, res) => {
@@ -61,6 +66,32 @@ app.get('/data', (req, res) => {
     });
   });
 });
+
+app.post('/users', (req, res) => {
+  var user = req.body;
+
+  // Check if the user exists
+  pool.query('SELECT * FROM users WHERE userId = ?', [user.userId], function(err, results) {
+    if (err) {
+      console.error("Error:", err);
+      return res.status(500).json({ error: 'Error connecting to MySQL' });
+    }
+    
+    // If the user doesn't exist, insert the new user
+    if (results.length === 0) {
+      pool.query('INSERT INTO users SET ?', user, function(err, result) {
+        if(err) {
+          console.error("Error:", err);
+          return res.status(500).json({ error: 'Error inserting user into MySQL' });
+        }
+        res.status(201).send('User added successfully');
+      });
+    } else {
+      res.status(400).send('User already exists.');
+    }
+  });
+});
+
 
 app.listen(process.env.PORT || 3000, () =>
   console.log('App running on http://localhost:3000')
