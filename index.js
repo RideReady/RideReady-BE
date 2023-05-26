@@ -4,12 +4,16 @@ require('dotenv').config();
 
 const mysql = require('mysql2');
 const app = express();
+const cors = require("cors");
 
 const password = process.env.DB_PASSWORD;
 
-app.use(bodyParser.json()); // to support JSON-encoded bodies
-app.use(bodyParser.urlencoded({ // to support URL-encoded bodies
+app.use(express.json());       // to support JSON-encoded bodies
+app.use(express.urlencoded({  // to support URL-encoded bodies
   extended: true
+}));
+app.use(cors({
+  origin: 'http://localhost:3000'
 }));
 
 
@@ -68,8 +72,9 @@ app.get('/data', (req, res) => {
 });
 
 app.post('/users', (req, res) => {
-  var user = req.body;
-
+  console.log(req.body)
+  const user = req.body;
+  console.log(user)
   // Check if the user exists
   pool.query('SELECT * FROM users WHERE userId = ?', [user.userId], function(err, results) {
     if (err) {
@@ -79,7 +84,7 @@ app.post('/users', (req, res) => {
     
     // If the user doesn't exist, insert the new user
     if (results.length === 0) {
-      pool.query('INSERT INTO users SET ?', user, function(err, result) {
+      pool.query('INSERT INTO users SET ?', user, function(err, result, fields) {
         if(err) {
           console.error("Error:", err);
           return res.status(500).json({ error: 'Error inserting user into MySQL' });
