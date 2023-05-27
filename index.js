@@ -8,12 +8,12 @@ const cors = require("cors");
 
 const password = process.env.DB_PASSWORD;
 
-app.use(express.json());       // to support JSON-encoded bodies
-app.use(express.urlencoded({  // to support URL-encoded bodies
+app.use(express.json());
+app.use(express.urlencoded({
   extended: true
 }));
 app.use(cors({
-  origin: 'http://localhost:3000'
+  origin: ['http://localhost:3000']
 }));
 
 
@@ -27,11 +27,11 @@ const pool = mysql.createPool({
 app.get('/data', (req, res) => {
   pool.getConnection((err, connection) => {
     if (err) {
-      console.error('Error connecting to MySQL:', err);
-      return res.status(500).json({ error: 'Error connecting to MySQL' });
+      console.error('Error connecting to database:', err);
+      return res.status(500).json({ error: 'Error connecting to database' });
     }
 
-    console.log('Connected to MySQL database.');
+    console.log('Connected to database.');
 
     // Fetch table names
     const showTablesQuery = 'SHOW TABLES';
@@ -59,7 +59,7 @@ app.get('/data', (req, res) => {
 
       Promise.all(dataPromises)
         .then((tableData) => {
-          connection.release(); // Release the connection back to the pool
+          connection.release();
           res.json(tableData);
         })
         .catch((error) => {
@@ -72,27 +72,30 @@ app.get('/data', (req, res) => {
 });
 
 app.post('/users', (req, res) => {
-  console.log(req.body)
   const user = req.body;
   console.log(user)
+
+  // Test for slower connections and set timeout here?
+  // Slow connection was causing this post to fail - 500
+
   // Check if the user exists
-  pool.query('SELECT * FROM users WHERE userId = ?', [user.userId], function(err, results) {
+  pool.query('SELECT * FROM users WHERE userId = ?', [user.userId], (err, results) => {
     if (err) {
       console.error("Error:", err);
-      return res.status(500).json({ error: 'Error connecting to MySQL' });
+      return res.status(500).json({ error: 'Error connecting to database' });
     }
     
     // If the user doesn't exist, insert the new user
     if (results.length === 0) {
-      pool.query('INSERT INTO users SET ?', user, function(err, result, fields) {
+      pool.query('INSERT INTO users SET ?', user, (err, result, fields) => {
         if(err) {
           console.error("Error:", err);
-          return res.status(500).json({ error: 'Error inserting user into MySQL' });
+          return res.status(500).json({ error: 'Error inserting user into database' });
         }
         res.status(201).send('User added successfully');
       });
     } else {
-      res.status(400).send('User already exists.');
+      res.status(409).send('Database connection successful. User already exists.');
     }
   });
 });
