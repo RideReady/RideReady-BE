@@ -18,7 +18,7 @@ if (process.env.NODE_ENV === "production") {
 }
 
 const pool = new Pool({
-  connectionString: process.env.CLEARDB_DATABASE_URL,
+  connectionString: process.env.DATABASE_URL,
   ssl: sslOptions,
 });
 
