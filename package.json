@@ -4,7 +4,7 @@
   "description": "RideReady BE",
   "main": "index.js",
   "scripts": {
-    "start": "node ."
+    "start": "nodemon index.js"
   },
   "engines": {
     "node": "18.x"
@@ -20,5 +20,8 @@
     "express": "^4.18.2",
     "mysql2": "^3.3.2",
     "pg": "^8.11.0"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.22"
   }
 }

@@ -8,21 +8,18 @@ const PORT = process.env.PORT || 5001;
 const cors = require("cors");
 
 
-const url = require('url');
 const dbUrl = new URL(process.env.DATABASE_URL);
 
 const pool = mysql.createPool({
   host: dbUrl.hostname,
   user: dbUrl.username,
   password: dbUrl.password,
-  database: dbUrl.pathname.substr(1),
+  database: dbUrl.pathname.slice(1),
   connectionLimit: 10,
   ssl: {
     rejectUnauthorized: false
   }
 });
-
-
 
 const app = express();
 
@@ -39,21 +36,13 @@ app.use(
 );
 app.use(express.static(path.join(__dirname, "public")));
 
-app.get("/", async (req, res) => {
+app.get("/users", async (req, res) => {
   try {
     const connection = await pool.promise().getConnection();
-    const [rows] = await connection.query("SHOW TABLES");
 
-    const tableNames = rows.map((row) => row[`Tables_in_${process.env.MYSQL_DATABASE}`]);
+    const users = await connection.query(`SELECT * FROM users`);
 
-    const results = {};
-
-    for (const tableName of tableNames) {
-      const [rows] = await connection.query(`SELECT * FROM ${tableName}`);
-      results[tableName] = rows;
-    }
-
-    res.json(results);
+    res.json({'users': users[0]});
 
     connection.release();
   } catch (err) {
