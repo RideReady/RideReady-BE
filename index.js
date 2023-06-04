@@ -9,9 +9,18 @@ const { Pool } = require("pg");
 const cors = require("cors");
 
 
+let sslOptions = null;
+
+if (process.env.NODE_ENV === "production") {
+  // Use SSL for the live server
+  sslOptions = {
+    rejectUnauthorized: false,
+  };
+}
+
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
-  ssl: process.env.SSL === "true" ? { rejectUnauthorized: false } : false,
+  ssl: sslOptions,
 });
 
 express()
