@@ -42,12 +42,12 @@ app.get("/users", async (req, res) => {
 
     const users = await connection.query(`SELECT * FROM users`);
 
-    res.json({'users': users[0]});
+    res.status(200).json({'users': users[0]});
 
     connection.release();
   } catch (err) {
     console.error(err);
-    res.send("Error " + err);
+    res.status(500).send("Error " + err);
   }
 });
 
