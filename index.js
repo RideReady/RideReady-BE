@@ -8,19 +8,10 @@ const { Pool } = require("pg");
 
 const cors = require("cors");
 
-// app.use(express.json());
-// app.use(express.urlencoded({
-//   extended: true
-// }));
-// app.use(cors({
-//   origin: ['http://localhost:3000']
-// }));
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
-  ssl: {
-    rejectUnauthorized: false
-  }
+  ssl: process.env.SSL === "true" ? { rejectUnauthorized: false } : false,
 });
 
 express()
