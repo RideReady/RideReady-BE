@@ -46,60 +46,32 @@ app.get("/suspension/:user_id", async (req, res) => {
   }
 });
 
-// app.post("/users", async (req, res) => {
-//   try {
-//     const newUser = req.body;
-//     const connection = await pool.promise().getConnection();
+app.post("/suspension", async (req, res) => {
+  try {
+    const newSus = req.body;
+    const connection = await pool.promise().getConnection();
 
-//     const [existingUsers] = await connection.query(
-//       "SELECT * FROM users WHERE id = ?",
-//       [newUser.id]
-//     );
+    const [existingSus] = await connection.query(
+      "SELECT * FROM suspension WHERE id = ? AND user_id = ?",
+      [newSus.id, newSus.user_id]
+    );
 
-//     if (existingUsers.length > 0) {
-//       res.status(200).json("User already in database");
-//       connection.release();
-//     } else {
-//       const [result] = await connection.query(
-//         "INSERT INTO users (id, firstName, lastName, date_created) VALUES (?, ?, ?, ?)",
-//         [newUser.id, newUser.firstName, newUser.lastName, newUser.date_created]
-//       );
+    if (existingSus.length > 0) {
+      res.status(200).json("Suspension already in database");
+      connection.release();
+    } else {
+      const [result] = await connection.query(
+        "INSERT INTO suspension (id, user_id, rebuild_life, rebuild_date, sus_data_id, on_bike_id) VALUES (?, ?, ?, ?, ?, ?)",
+        [newSus.id, newSus.user_id, newSus.rebuild_life, newSus.rebuild_date, newSus.sus_data_id, newSus.on_bike_id]
+      );
 
-//       res.status(201).json({ "newUser added to DB": newUser });
-//       connection.release();
-//     }
-//   } catch (err) {
-//     console.error(err);
-//     res.status(500).send(`Error adding user to DB: ${err}`);
-//   }
-// });
-
-// app.post("/rides", async (req, res) => {
-//   try {
-//     const newRides = req.body;
-//     const connection = await pool.promise().getConnection();
-
-//     const placeholders = newRides.map(() => "(?, ?, ?, ?, ?, ?)").join(", ");
-
-//     const values = newRides.flatMap((ride) => [
-//       ride.id,
-//       ride.ride_duration,
-//       ride.ride_distance,
-//       ride.ride_date,
-//       ride.fk_gear_id,
-//       ride.fk_user_id
-//     ]);
-
-//     const query = `INSERT INTO rides (id, ride_duration, ride_distance, ride_date, fk_gear_id, fk_user_id) VALUES ${placeholders}`;
-
-//     const [result] = await connection.query(query, values);
-
-//     res.status(201).json({ message: "New rides added to the database", newRides });
-//     connection.release();
-//   } catch (err) {
-//     console.error(err);
-//     res.status(500).send(`Error adding rides to DB: ${err}`);
-//   }
-// });
+      res.status(201).json({ "New suspension added to DB": newSus });
+      connection.release();
+    }
+  } catch (err) {
+    console.error(err);
+    res.status(500).send(`Error adding suspension to DB: ${err}`);
+  }
+});
 
 app.listen(PORT, () => console.log(`Listening on ${PORT}`));
