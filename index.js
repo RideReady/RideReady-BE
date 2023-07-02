@@ -34,11 +34,10 @@ app.use(express.static(path.join(__dirname, "public")));
 
 app.get("/suspension/:user_id", async (req, res) => {
   try {
-    const { userId } = req.params;
+    const { user_id: userId } = req.params;
     const connection = await pool.promise().getConnection();
     const [suspension] = await connection.query("SELECT * FROM suspension WHERE user_id = ?", [userId]);
     res.status(200).json({ suspension: suspension });
-    console.log(suspension);
     connection.release();
   } catch (err) {
     console.error(err);
@@ -61,8 +60,8 @@ app.post("/suspension", async (req, res) => {
       connection.release();
     } else {
       const [result] = await connection.query(
-        "INSERT INTO suspension (id, user_id, rebuild_life, rebuild_date, sus_data_id, on_bike_id) VALUES (?, ?, ?, ?, ?, ?)",
-        [newSus.id, newSus.user_id, newSus.rebuild_life, newSus.rebuild_date, newSus.sus_data_id, newSus.on_bike_id]
+        "INSERT INTO suspension (id, user_id, rebuild_life, rebuild_date, sus_data_id, on_bike_id, date_created) VALUES (?, ?, ?, ?, ?, ?, ?)",
+        [newSus.id, newSus.user_id, newSus.rebuild_life, newSus.rebuild_date, newSus.sus_data_id, newSus.on_bike_id, newSus.date_created]
       );
 
       res.status(201).json({ "New suspension added to DB": newSus });
@@ -73,5 +72,44 @@ app.post("/suspension", async (req, res) => {
     res.status(500).send(`Error adding suspension to DB: ${err}`);
   }
 });
+
+app.patch("/suspension/:id", async (req, res) => {
+  try {
+    const suspensionId = req.params.id;
+    const { rebuild_date, rebuild_life } = req.body;
+
+    const connection = await pool.promise().getConnection();
+    
+    const [result] = await connection.query(
+      "UPDATE suspension SET rebuild_date = ?, rebuild_life = ? WHERE id = ?",
+      [rebuild_date, rebuild_life, suspensionId]
+    );
+
+    res.status(200).json({ message: `Suspension ${suspensionId} updated successfully` });
+    connection.release();
+  } catch (err) {
+    console.error(err);
+    res.status(500).send(`Error updating suspension: ${err}`);
+  }
+});
+
+// app.delete("/suspension/:id", async (req, res) => {
+//   try {
+//     const suspensionId = req.params.id;
+    
+//     const connection = await pool.promise().getConnection();
+    
+//     const [result] = await connection.query(
+//       "DELETE FROM suspension WHERE id = ?",
+//       [suspensionId]
+//     );
+
+//     res.status(200).json({ message: "Suspension deleted successfully" });
+//     connection.release();
+//   } catch (err) {
+//     console.error(err);
+//     res.status(500).send(`Error deleting suspension: ${err}`);
+//   }
+// });
 
 app.listen(PORT, () => console.log(`Listening on ${PORT}`));
