@@ -60,8 +60,8 @@ app.post("/suspension", async (req, res) => {
       connection.release();
     } else {
       const [result] = await connection.query(
-        "INSERT INTO suspension (id, user_id, rebuild_life, rebuild_date, sus_data_id, on_bike_id, date_created) VALUES (?, ?, ?, ?, ?, ?, ?)",
-        [newSus.id, newSus.user_id, newSus.rebuild_life, newSus.rebuild_date, newSus.sus_data_id, newSus.on_bike_id, newSus.date_created]
+        "INSERT INTO suspension (id, user_id, rebuild_life, rebuild_date, sus_data_id, on_bike_id, date_created, last_ride_calculated) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+        [newSus.id, newSus.user_id, newSus.rebuild_life, newSus.rebuild_date, newSus.sus_data_id, newSus.on_bike_id, newSus.date_created, newSus.last_ride_calculated]
       );
 
       res.status(201).json({ "New suspension added to DB": newSus });
@@ -93,23 +93,23 @@ app.patch("/suspension/:id", async (req, res) => {
   }
 });
 
-// app.delete("/suspension/:id", async (req, res) => {
-//   try {
-//     const suspensionId = req.params.id;
+app.delete("/suspension/:id", async (req, res) => {
+  try {
+    const suspensionId = req.params.id;
     
-//     const connection = await pool.promise().getConnection();
+    const connection = await pool.promise().getConnection();
     
-//     const [result] = await connection.query(
-//       "DELETE FROM suspension WHERE id = ?",
-//       [suspensionId]
-//     );
+    const [result] = await connection.query(
+      "DELETE FROM suspension WHERE id = ?",
+      [suspensionId]
+    );
 
-//     res.status(200).json({ message: "Suspension deleted successfully" });
-//     connection.release();
-//   } catch (err) {
-//     console.error(err);
-//     res.status(500).send(`Error deleting suspension: ${err}`);
-//   }
-// });
+    res.status(200).json({ message: "Suspension deleted successfully" });
+    connection.release();
+  } catch (err) {
+    console.error(err);
+    res.status(500).send(`Error deleting suspension: ${err}`);
+  }
+});
 
 app.listen(PORT, () => console.log(`Listening on ${PORT}`));
