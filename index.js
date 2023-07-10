@@ -76,13 +76,13 @@ app.post("/suspension", async (req, res) => {
 app.patch("/suspension/:id", async (req, res) => {
   try {
     const suspensionId = req.params.id;
-    const { rebuild_date, rebuild_life } = req.body;
+    const { rebuild_date, rebuild_life, last_ride_calculated } = req.body;
 
     const connection = await pool.promise().getConnection();
     
     const [result] = await connection.query(
-      "UPDATE suspension SET rebuild_date = ?, rebuild_life = ? WHERE id = ?",
-      [rebuild_date, rebuild_life, suspensionId]
+      "UPDATE suspension SET rebuild_date = ?, rebuild_life = ?, last_ride_calculated = ? WHERE id = ?",
+      [rebuild_date, rebuild_life, last_ride_calculated, suspensionId]
     );
 
     res.status(200).json({ message: `Suspension ${suspensionId} updated successfully` });
