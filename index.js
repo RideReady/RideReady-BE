@@ -27,7 +27,7 @@ app.use(
 );
 app.use(
   cors({
-    origin: ["http://localhost:5173", "https://ride-ready-fe-vite.vercel.app/"],
+    origin: ["http://localhost:5173", "https://ride-ready-fe-vite.vercel.app"],
   })
 );
 app.use(express.static(path.join(__dirname, "public")));
