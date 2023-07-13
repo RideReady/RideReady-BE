@@ -85,7 +85,7 @@ app.patch("/suspension/:id", async (req, res) => {
       [rebuild_date, rebuild_life, last_ride_calculated, suspensionId]
     );
 
-    res.status(200).json({ message: `Suspension ${suspensionId} updated successfully` });
+    res.status(200).json(`Suspension ${suspensionId} updated successfully`);
     connection.release();
   } catch (err) {
     console.error(err);
@@ -104,7 +104,7 @@ app.delete("/suspension/:id", async (req, res) => {
       [suspensionId]
     );
 
-    res.status(200).json({ message: "Suspension deleted successfully" });
+    res.status(200).json("Suspension deleted successfully" );
     connection.release();
   } catch (err) {
     console.error(err);
