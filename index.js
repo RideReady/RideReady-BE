@@ -5,6 +5,7 @@ const mysql = require("mysql2");
 const PORT = process.env.PORT || 5001;
 const cors = require("cors");
 const dbUrl = new URL(process.env.DATABASE_URL);
+const helmet = require('helmet');
 
 const pool = mysql.createPool({
   host: dbUrl.hostname,
@@ -18,6 +19,15 @@ const pool = mysql.createPool({
 });
 
 const app = express();
+
+app.use(helmet.contentSecurityPolicy({
+  directives: {
+    defaultSrc: ["'self'"],
+    scriptSrc: ["'self'", "http://localhost:5173", "https://www.ridereadybike.com"],
+    imgSrc: ["'self'", "http://localhost:5173", "https://www.ridereadybike.com"],
+    connectSrc: ["'self'", "http://localhost:5173", "https://www.ridereadybike.com"],
+  },
+}));
 
 app.use(express.json());
 app.use(
@@ -104,7 +114,7 @@ app.delete("/suspension/:id", async (req, res) => {
       [suspensionId]
     );
 
-    res.status(200).json("Suspension deleted successfully" );
+    res.status(200).json("Suspension deleted successfully");
     connection.release();
   } catch (err) {
     console.error(err);
