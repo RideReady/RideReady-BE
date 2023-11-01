@@ -60,7 +60,7 @@ app.use(
 
 app.use(session({
   secret: process.env.SESSION_SECRET,
-  resave: true,
+  resave: false,
   saveUninitialized: false,
   // Changed cookie to secure true, local is http so will need to be set to false
   cookie: { secure: true, sameSite: "none" }
