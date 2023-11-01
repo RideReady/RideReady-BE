@@ -6,6 +6,10 @@ const PORT = process.env.PORT || 5001;
 const cors = require("cors");
 const dbUrl = new URL(process.env.DATABASE_URL);
 const helmet = require('helmet');
+const session = require('express-session');
+const lusca = require('lusca');
+
+// DB Connection Setup
 
 const pool = mysql.createPool({
   host: dbUrl.hostname,
@@ -19,6 +23,8 @@ const pool = mysql.createPool({
 });
 
 const app = express();
+
+// MIDDLEWARE
 
 app.use(helmet.contentSecurityPolicy({
   directives: {
@@ -38,9 +44,43 @@ app.use(
 app.use(
   cors({
     origin: ["http://localhost:5173", "https://www.ridereadybike.com"],
+    credentials: true,
   })
 );
-app.use(express.static(path.join(__dirname, "public")));
+
+app.use(session({
+  secret: 'your-secret-key',
+  resave: true,
+  saveUninitialized: true,
+  cookie: { secure: "auto", sameSite: 'lax' }
+}));
+
+// May want to move CSP to Lusca below and delete Helmet
+app.use(lusca({
+  csrf: true,
+  csp: false,
+  xframe: 'SAMEORIGIN',
+  p3p: false,
+  hsts: {maxAge: 31536000, includeSubDomains: true, preload: true},
+  xssProtection: true,
+  nosniff: true,
+  referrerPolicy: 'same-origin'
+}));
+
+// Logs all request info
+// app.use((req, res, next) => {
+//   console.log('Headers:', req.headers);
+//   console.log("Session ID:", req.sessionID);
+//   console.log('Session:', req.session);
+//   console.log("Body:", req.body);
+//   next();
+// });
+
+// ENDPOINTS
+
+app.get("/csrf-token", (req, res) => {
+  res.json({ csrfToken: req.csrfToken() });
+});
 
 app.get("/suspension/:user_id", async (req, res) => {
   try {
@@ -86,7 +126,7 @@ app.post("/suspension", async (req, res) => {
 app.patch("/suspension/:id", async (req, res) => {
   try {
     const suspensionId = req.params.id;
-    const { rebuild_date, rebuild_life, last_ride_calculated } = req.body;
+    const { rebuild_date, rebuild_life, last_ride_calculated } = req.body.sus;
 
     const connection = await pool.promise().getConnection();
     
@@ -120,6 +160,16 @@ app.delete("/suspension/:id", async (req, res) => {
     console.error(err);
     res.status(500).send(`Error deleting suspension: ${err}`);
   }
+});
+
+// Logs a req causing errors
+app.use((err, req, res, next) => {
+  if (err) {
+    console.log('ERROR LOG');
+    console.log("Rec'd headers:", req.headers);
+    console.log("Rec'd Body:", req.body)
+  }
+  next(err);
 });
 
 app.listen(PORT, () => console.log(`Listening on ${PORT}`));
