@@ -59,7 +59,7 @@ app.use(
 );
 
 app.use(session({
-  secret: 'NOT SECURE',
+  secret: process.env.SESSION_SECRET,
   resave: true,
   saveUninitialized: true,
   // Cookie needs to be secure false when running on local env
