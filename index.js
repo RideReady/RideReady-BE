@@ -62,8 +62,8 @@ app.use(session({
   secret: process.env.SESSION_SECRET,
   resave: true,
   saveUninitialized: true,
-  // Changed cookie to secure true, local is http so will need to be set to false
-  cookie: { secure: true, sameSite: "strict" }
+  // Cookie needs to be secure false when running on local env
+  cookie: { secure: false, sameSite: false }
 }));
 
 // May want to move CSP to Lusca below and delete Helmet
