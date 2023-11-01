@@ -59,7 +59,7 @@ app.use(
 );
 
 app.use(session({
-  secret: 'your-secret-key',
+  secret: process.env.SESSION_SECRET,
   resave: true,
   saveUninitialized: true,
   cookie: { secure: "auto", sameSite: 'lax' }
