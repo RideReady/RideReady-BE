@@ -63,7 +63,7 @@ app.use(session({
   resave: true,
   saveUninitialized: true,
   // Cookie needs to be secure false when running on local env
-  cookie: { secure: false, sameSite: "none" }
+  cookie: { secure: true, sameSite: "none" }
 }));
 
 // May want to move CSP to Lusca below and delete Helmet
