@@ -8,6 +8,7 @@ const dbUrl = new URL(process.env.DATABASE_URL);
 const helmet = require('helmet');
 const session = require('express-session');
 const lusca = require('lusca');
+const rateLimit = require("express-rate-limit");
 
 // DB Connection Setup
 
@@ -35,16 +36,25 @@ app.use(helmet.contentSecurityPolicy({
   },
 }));
 
-app.use(express.json());
-app.use(
-  express.urlencoded({
-    extended: true,
-  })
-);
+const limiter = rateLimit({
+	windowMs: 15 * 60 * 1000, // 15 minutes
+	limit: 100, // Limit each IP to 100 requests per `window` (here, per 15 minutes).
+	standardHeaders: 'draft-7', // draft-6: `RateLimit-*` headers; draft-7: combined `RateLimit` header
+	legacyHeaders: false,
+})
+app.use(limiter);
+
 app.use(
   cors({
     origin: ["http://localhost:5173", "https://www.ridereadybike.com"],
     credentials: true,
+  })
+);
+
+app.use(express.json());
+app.use(
+  express.urlencoded({
+    extended: true,
   })
 );
 
