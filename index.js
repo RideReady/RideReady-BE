@@ -97,7 +97,7 @@ app.get("/suspension/:user_id", async (req, res) => {
 
 app.post("/suspension", async (req, res) => {
   try {
-    const newSus = req.body;
+    const newSus = req.body.sus;
     const connection = await pool.promise().getConnection();
 
     const [existingSus] = await connection.query(
