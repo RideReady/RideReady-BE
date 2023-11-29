@@ -91,7 +91,10 @@ app.use(
 const token = new Tokens();
 const csrfToken = token.secretSync();
 app.use((req, res, next) => {
-  res.cookie("csrf-token", csrfToken);
+  res.cookie("csrf-token", csrfToken, {
+    secure: true,
+    sameSite: "none",
+  });
   res.locals.csrfToken = csrfToken;
   next();
 });
