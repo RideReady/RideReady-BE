@@ -82,7 +82,8 @@ app.use(
     secret: process.env.SESSION_SECRET,
     resave: true,
     saveUninitialized: true,
-    cookie: { secure: true, sameSite: "strict" },
+    // Needs to be samesite: "none" as BE domain is different than FE in production
+    cookie: { secure: true, sameSite: "none" },
   })
 );
 
